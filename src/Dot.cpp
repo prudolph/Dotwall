@@ -66,11 +66,11 @@ void Dot::flipDot(){
 	if (mDotState == On){
 		mDotState = Off;
 	
-		timeline().apply(&mRotation, Vec3f(0, 0, 0), .75, EaseOutBounce());
+		timeline().apply(&mRotation, Vec3f(0, 0, 0), 0.25, EaseOutBounce());
 	}
 	else{
 		mDotState = On;
-		timeline().apply(&mRotation, Vec3f(0, 180, 0), 0.750, EaseOutBounce());
+		timeline().apply(&mRotation, Vec3f(0, 180, 0), 0.25, EaseOutBounce());
 
 	}
 }

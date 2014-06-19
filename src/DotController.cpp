@@ -22,7 +22,8 @@ mChannelSound(0),
 mChannelSynth(0),
 mSound(0),
 mSystem(0),
-mSoundLevel(1)
+mSoundLevel(1),
+mGravity(true)
 {
 
 }
@@ -90,14 +91,68 @@ void DotController::flipDot(cinder::Vec2i index){
 		mDotGrid.at(index.x).at(index.y).flipDot();
 
 		
-					
-		
 	}
 	
 }
+void DotController::addDotUpdate(cinder::Vec2i index, FlipMode mode){
+	mDotUpdateMutex.lock();
+		dotUpdateList.push_back(std::pair<cinder::Vec2i, FlipMode>(index, mode));
+	mDotUpdateMutex.unlock();
+}
 
 void DotController::update(){
-	mSystem->update();
+	//mSystem->update();
+	
+	while (!dotUpdateList.empty()){
+		std::pair<cinder::Vec2i, FlipMode> update;
+		
+		mDotUpdateMutex.lock();
+			update = dotUpdateList.front();
+			dotUpdateList.pop_front();
+		mDotUpdateMutex.unlock();
+
+		switch (update.second) {
+		case Flip:
+			flipDot(update.first);
+			break;
+		case On:
+			setDotState(update.first, Dot::DotState::On);
+			break;
+		case Off:
+			setDotState(update.first, Dot::DotState::Off);
+			break;
+		}
+
+	}
+	if (mGravity == true){
+		double elapsedTime = getElapsedSeconds() - lastUpdateTime;
+		
+		
+		if (((elapsedTime) > 1.0f / 12.0f)){
+			lastUpdateTime = getElapsedSeconds();
+			stepGravity();
+		}
+		
+	}
+}
+
+void DotController::stepGravity(){
+	console() << "DotWAll :: Step Gravity" << endl;
+	for (int col = getNumCols()-1; col >=0 ; col--){
+		for (int row = getNumRows()-1; row>=0; row--){
+		
+
+
+			if (mDotGrid.at(col).at(row).getDotState() == Dot::DotState::On){
+				setDotState(Vec2i(col, row ), Dot::DotState::Off);
+		
+				setDotState(Vec2i(col,row+2), Dot::DotState::On);
+			
+			}
+		}
+	}
+
+
 }
 void DotController::draw(){
 	

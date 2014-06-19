@@ -27,7 +27,7 @@ public:
 
 	void draw();
 	cinder::Vec2f getDotPos(){ return mCenterPosition; };
-
+	DotState getDotState(){ return mDotState; };
 protected:
 	cinder::Vec2f mCenterPosition;
 	cinder::Anim<cinder::Vec3f> mRotation;

@@ -11,6 +11,11 @@
 #include "cinder/Camera.h"
 #include "cinder/MayaCamUI.h"
 #include "cinder/params/Params.h"
+//Leap
+
+#include "Leap.h"
+#include "LeapMath.h"
+#include "LeapListener.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -24,7 +29,15 @@ class Main : public AppNative {
 	void keyUp(KeyEvent event);
 	void update();
 	void draw();
-	DotController dotWall;
+
+	//Patterns
+	void randomDot();
+	void verticalWave();
+	void horizontalWave();
+	void loadImage();
+
+
+	std::shared_ptr<DotController> dotWallRef;
 
 	float curX, curY;
 	float mDotRadius, mDotSpacing;
@@ -41,14 +54,11 @@ class Main : public AppNative {
 	Vec3f					mLightDirection;
 	ColorA					mLightColor;
 	params::InterfaceGlRef	mParams;
-	//Patterns
-	void randomDot();
 
-	
-	void verticalWave();
-	void horizontalWave();
 
-	void loadImage();
+	Leap::Controller leapController;
+	LeapListener leapListener;
+
 };
 
 void Main::setup()
@@ -62,11 +72,6 @@ void Main::setup()
 	mUp = -Vec3f::xAxis();
 	mLightDirection = Vec3f(0, 0, 500);
 	mLightColor =ColorA(1, 1, 1, 1);
-
-
-	// now tell our Camera that the window aspect ratio has changed
-
-	//mCamera.setPerspective(60.0f, getWindowAspectRatio(), 5.0f, 3000.0f);
 
 
 
@@ -92,7 +97,9 @@ void Main::setup()
 
 	 mDotRadius = 7.0f;
 	 mDotSpacing = 2.0f;
-	 dotWall.setup(Vec2f(100.0f, 100.0f), Vec2f(500, 500), mDotRadius, mDotSpacing);
+	 dotWallRef = std::shared_ptr<DotController>(new DotController());
+
+	 dotWallRef->setup(Vec2f(100.0f, 100.0f), Vec2f(500, 500), mDotRadius, mDotSpacing);
 
 
 	curX = curY = 0;
@@ -100,6 +107,10 @@ void Main::setup()
 
 	lastUpdateTime = getElapsedSeconds();
 	
+	//Setup Leap
+	leapListener.setDotwallRef(dotWallRef);
+	leapController.addListener(leapListener);
+
 
 }
 
@@ -110,11 +121,11 @@ void Main::mouseDrag(MouseEvent event)
 
 	}
 	else{
-		float x = (float)(event.getPos().x) / (float)(getWindowWidth())*dotWall.getNumCols();
-		float y = (float)(event.getPos().y) / (float)(getWindowHeight())*dotWall.getNumRows();
+		float x = (float)(event.getPos().x) / (float)(getWindowWidth())*dotWallRef->getNumCols();
+		float y = (float)(event.getPos().y) / (float)(getWindowHeight())*dotWallRef->getNumRows();
 		Vec2f mousePos = Vec2f(x, y);
 		console() << "MousePos : " << event.getPos() << " CorrectedPosition : " << mousePos << endl;
-		dotWall.flipDot(mousePos);
+		dotWallRef->flipDot(mousePos);
 	}
 }
 
@@ -159,7 +170,7 @@ void Main::loadImage(){
 
 			//Average out the samples
 			float sampleAverage = sampleAccum / (chunkSize*chunkSize);
-			dotWall.setDotState(cinder::Vec2i(i, j), sampleAverage>0.5f ? Dot::DotState::On : Dot::DotState::Off);
+			dotWallRef->setDotState(cinder::Vec2i(i, j), sampleAverage>0.5f ? Dot::DotState::On : Dot::DotState::Off);
 
 		}
 	}
@@ -169,7 +180,7 @@ void Main::loadImage(){
 
 void Main::update()
 {
-
+	dotWallRef->update();
 
 	
 	/*
@@ -204,24 +215,24 @@ void Main::update()
 }
 
 void Main::randomDot(){
-	dotWall.flipDot(cinder::Vec2i(randInt(0, dotWall.getNumCols()), randInt(0, dotWall.getNumRows())));
+	dotWallRef->flipDot(cinder::Vec2i(randInt(0, dotWallRef->getNumCols()), randInt(0, dotWallRef->getNumRows())));
 
 }
 void Main::verticalWave(){
 	
 	curX++;
-	if (curX > dotWall.getNumCols())curX = 0;
-	for (int i = 0; i < dotWall.getNumCols(); i++){
-		dotWall.flipDot(cinder::Vec2i(curX, i));
+	if (curX > dotWallRef->getNumCols())curX = 0;
+	for (int i = 0; i < dotWallRef->getNumCols(); i++){
+		dotWallRef->flipDot(cinder::Vec2i(curX, i));
 	}
 
 
 }
 void Main::horizontalWave(){
 	curY++;
-	if (curY > dotWall.getNumRows())curY = 0;
-	for (int i = 0; i < dotWall.getNumRows(); i++){
-		dotWall.flipDot(cinder::Vec2i(i, curY));
+	if (curY > dotWallRef->getNumRows())curY = 0;
+	for (int i = 0; i < dotWallRef->getNumRows(); i++){
+		dotWallRef->flipDot(cinder::Vec2i(i, curY));
 	}
 }
 
@@ -241,7 +252,7 @@ void Main::draw()
 	gl::setMatrices(mMayaCam.getCamera());
 		gl::color(1, 1, 1);
 		if (testImage)gl::draw(testImage,Vec2f(100,100));
-		dotWall.draw();
+		dotWallRef->draw();
 
 		mParams->draw();
 }

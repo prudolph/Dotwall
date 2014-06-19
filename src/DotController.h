@@ -16,10 +16,11 @@
 //FMOD
 #include "FMOD.hpp"
 #include "fmod_errors.h"
+#include <mutex>
 class DotController{
 
 public:
-
+	enum FlipMode{ Flip,On, Off };
 	DotController();
 	~DotController();
 	void setup(cinder::Vec2f &gridPosition, cinder::Vec2f &gridSize, float &dotRadius, float &dotSpacing);
@@ -32,9 +33,10 @@ public:
 	int getNumRows(){ return mDotGrid.size(); };
 	int getNumCols(){ return mDotGrid.at(0).size(); };
 
-
+	void addDotUpdate(cinder::Vec2i index, FlipMode mode);
+	void setGravity(bool state){ mGravity = state; };
 protected:
-	
+	void stepGravity();
 	cinder::Vec2f	mPosition,
 					mSize;
 
@@ -51,5 +53,11 @@ protected:
 	FMOD::System*				mSystem;
 
 	float						mSoundLevel;
+	
+	std::mutex mDotUpdateMutex;
+	std::deque<std::pair<cinder::Vec2i, FlipMode> > dotUpdateList;
+	bool mGravity;
 
+	double lastUpdateTime;
+	
 };

@@ -50,7 +50,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\cinder\include;..\cinder\boost;..\cinder\blocks\FMOD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\cinder\include;..\cinder\boost;..\cinder\blocks\FMOD\include;..\blocks\Leap\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;_WIN32_WINNT=0x0502;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -64,8 +64,8 @@
       <AdditionalIncludeDirectories>..\cinder\include;..\include</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>cinder_d.lib;..\cinder\blocks\FMOD\lib\msw\fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\cinder\lib;..\cinder\lib\msw</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cinder_d.lib;..\cinder\blocks\FMOD\lib\msw\fmodex_vc.lib;Leapd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\cinder\lib;..\cinder\lib\msw;..\blocks\Leap\lib\x86</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -74,12 +74,15 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBCPMT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)..\cinder\blocks\FMOD\lib\msw\fmodex.dll" "$(OutDir)"</Command>
+      <Command>copy "$(SolutionDir)..\cinder\blocks\FMOD\lib\msw\fmodex.dll" "$(OutDir)"
+xcopy /yr "..\blocks\Leap\lib\x86\Leapd.dll" "$(TargetDir)"
+xcopy /yr "..\blocks\Leap\lib\x86\msvcp120d.dll" "$(TargetDir)"
+xcopy /yr "..\blocks\Leap\lib\x86\msvcr120d.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\cinder\include;..\cinder\boost;..\cinder\blocks\FMOD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\cinder\include;..\cinder\boost;..\cinder\blocks\FMOD\include;..\blocks\Leap\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;_WIN32_WINNT=0x0502;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
@@ -94,8 +97,8 @@
       <AdditionalIncludeDirectories>..\cinder\include;..\include</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>cinder.lib;..\cinder\blocks\FMOD\lib\msw\fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\cinder\lib;..\cinder\lib\msw</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cinder.lib;..\cinder\blocks\FMOD\lib\msw\fmodex_vc.lib;Leap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\cinder\lib;..\cinder\lib\msw;..\blocks\Leap\lib\x86</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -115,12 +118,14 @@
   <ItemGroup>
     <ClCompile Include="..\src\Dot.cpp" />
     <ClCompile Include="..\src\DotController.cpp" />
+    <ClCompile Include="..\src\LeapListener.cpp" />
     <ClCompile Include="..\src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\Dot.h" />
     <ClInclude Include="..\src\DotController.h" />
+    <ClInclude Include="..\src\LeapListener.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
