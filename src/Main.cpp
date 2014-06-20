@@ -95,8 +95,8 @@ void Main::setup()
 	mParams->addParam("LightColor", &mLightColor, "min=0.0 max=1000.0 step=5.0 keyIncr=z keyDecr=Z");
 
 
-	 mDotRadius = 7.0f;
-	 mDotSpacing = 2.0f;
+	 mDotRadius = 3.0f;
+	 mDotSpacing = 1.0f;
 	 dotWallRef = std::shared_ptr<DotController>(new DotController());
 
 	 dotWallRef->setup(Vec2f(100.0f, 100.0f), Vec2f(500, 500), mDotRadius, mDotSpacing);

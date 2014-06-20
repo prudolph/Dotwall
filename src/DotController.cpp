@@ -146,7 +146,7 @@ void DotController::stepGravity(){
 			if (mDotGrid.at(col).at(row).getDotState() == Dot::DotState::On){
 				setDotState(Vec2i(col, row ), Dot::DotState::Off);
 		
-				setDotState(Vec2i(col,row+2), Dot::DotState::On);
+				setDotState(Vec2i(col,row+3), Dot::DotState::On);
 			
 			}
 		}

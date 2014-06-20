@@ -66,7 +66,7 @@ void LeapListener::onFrame(const Controller& controller) {
 				float x = normalPnt.x * getWindowWidth();
 				float y = getWindowHeight() - normalPnt.y * getWindowHeight();
 
-				if (finger.touchZone() ==  finger.isExtended()){
+				if ( finger.isExtended()){
 					x = (float)(x) / (float)(getWindowWidth())*mDotWallRef->getNumCols();
 					 y = (float)(y) / (float)(getWindowHeight())*mDotWallRef->getNumRows();
 					Vec2f fingerTipPos = Vec2f(x, y);
