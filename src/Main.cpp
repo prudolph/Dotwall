@@ -22,8 +22,10 @@ using namespace ci::app;
 using namespace std;
 
 class Main : public AppNative {
-  public:
+public:	
+	void prepareSettings(Settings *settings);
 	void setup();
+	void mouseDown(MouseEvent event);
 	void mouseDrag( MouseEvent event );	
 	void keyDown(KeyEvent event);
 	void keyUp(KeyEvent event);
@@ -51,7 +53,7 @@ class Main : public AppNative {
 	MayaCamUI	mMayaCam;
 	bool cPressed;
 	Vec3f mCamPos, mTarget,mUp;
-	Vec3f					mLightDirection;
+	Vec3f					mLightPosition;
 	ColorA					mLightColor;
 	params::InterfaceGlRef	mParams;
 
@@ -61,17 +63,22 @@ class Main : public AppNative {
 
 };
 
+void Main::prepareSettings(Settings *settings){
+		settings->setFrameRate(60);
+		settings->setFullScreen();
+}
 void Main::setup()
 {
 	cPressed = false;
 
 
 	//SetCamera
-	mCamPos = Vec3f(500, 500,800);
-	mTarget = Vec3f(500, 500, 0);
-	mUp = -Vec3f::xAxis();
-	mLightDirection = Vec3f(0, 0, 500);
-	mLightColor =ColorA(1, 1, 1, 1);
+	mCamPos = Vec3f(0, 0,-500);
+	mTarget = Vec3f(0, 0, 0);
+	mUp = -Vec3f::yAxis();
+
+	mLightPosition = Vec3f(0, 0, 500);
+	mLightColor =ColorA(1, 0, 0, 1);
 
 
 
@@ -91,11 +98,11 @@ void Main::setup()
 	
 	mParams->addParam("Cam Pos", &mCamPos, "min=0.0 max=1000.0 step=5.0 keyIncr=z keyDecr=Z");
 	mParams->addParam("Target", &mTarget, "min=0.0 max=1000.0 step=5.0 keyIncr=z keyDecr=Z");
-	mParams->addParam("Light Direction", &mLightDirection, "");
+	mParams->addParam("Light Direction", &mLightPosition, "");
 	mParams->addParam("LightColor", &mLightColor, "min=0.0 max=1000.0 step=5.0 keyIncr=z keyDecr=Z");
 
 
-	 mDotRadius = 3.0f;
+	 mDotRadius = 7.0f;
 	 mDotSpacing = 1.0f;
 	 dotWallRef = std::shared_ptr<DotController>(new DotController());
 
@@ -113,7 +120,12 @@ void Main::setup()
 
 
 }
+void Main::mouseDown(MouseEvent event){
+	if (cPressed){
+		mMayaCam.mouseDown(event.getPos());
 
+	}
+}
 void Main::mouseDrag(MouseEvent event)
 {
 	if (cPressed){
@@ -133,8 +145,13 @@ void Main::keyDown(KeyEvent event){
 	if (event.getChar() == 'i'){
 		loadImage();
 	}
+	//Change the camera around
 	if (event.getChar() == 'c')cPressed = true;
-	
+
+	if (event.getChar() == 'a')Dot::ToggleUsingAnimations();
+	if (event.getChar() == 'g')DotController::toggleGravity();
+	if (event.getChar() == 'q')quit();
+
 }
 
 
@@ -180,6 +197,8 @@ void Main::loadImage(){
 
 void Main::update()
 {
+
+	console() << "CAMara :" << mMayaCam.getCamera().getWorldUp()<< endl;;
 	dotWallRef->update();
 
 	
@@ -242,19 +261,31 @@ void Main::draw()
 	gl::clear( Color( 0, 0, 0 ) );
 
 
+	
 	glLoadIdentity();
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	GLfloat lightPosition[] = { -mLightDirection.x, -mLightDirection.y, -mLightDirection.z, 0.0f };
+	GLfloat lightPosition[] = { mLightPosition.x, mLightPosition.y, -mLightPosition.z, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mLightColor);
-	
+
+	GLfloat ambientLight[] = { mLightColor.r, mLightColor.g, mLightColor.b, 1.0f };
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+
+
+
+
 	gl::setMatrices(mMayaCam.getCamera());
 		gl::color(1, 1, 1);
-		if (testImage)gl::draw(testImage,Vec2f(100,100));
+		gl::drawColorCube(Vec3f(0, 0, 0), Vec3f(10, 10, 10));
+		//if (testImage)gl::draw(testImage,Vec2f(100,100));
 		dotWallRef->draw();
 
 		mParams->draw();
+
+		glDisable(GL_LIGHTING);
+		//Draw Framerate
+		gl::drawString(to_string(getAverageFps()), Vec2f(0.0f, 0.0f), ColorA(1.0f, 0.0f, 0.0f, 1.0f), Font("Arial", 20.0f));
+
 }
 
 CINDER_APP_NATIVE(Main, RendererGl)

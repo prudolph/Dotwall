@@ -34,7 +34,8 @@ public:
 	int getNumCols(){ return mDotGrid.at(0).size(); };
 
 	void addDotUpdate(cinder::Vec2i index, FlipMode mode);
-	void setGravity(bool state){ mGravity = state; };
+	static void toggleGravity(){ mGravity = !mGravity; };
+
 protected:
 	void stepGravity();
 	cinder::Vec2f	mPosition,
@@ -56,7 +57,7 @@ protected:
 	
 	std::mutex mDotUpdateMutex;
 	std::deque<std::pair<cinder::Vec2i, FlipMode> > dotUpdateList;
-	bool mGravity;
+	static bool mGravity;
 
 	double lastUpdateTime;
 	

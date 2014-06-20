@@ -53,8 +53,8 @@ void LeapListener::onFrame(const Controller& controller) {
 
 
 		// Get fingers
-		if (hand.grabStrength() > 0.85)mDotWallRef->setGravity(true);
-		else mDotWallRef->setGravity(false);
+		if (hand.grabStrength() > 0.85)DotController::toggleGravity();
+
 
 		const FingerList fingers = hand.fingers();
 		for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); ++fl) {

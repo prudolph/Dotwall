@@ -28,6 +28,9 @@ public:
 	void draw();
 	cinder::Vec2f getDotPos(){ return mCenterPosition; };
 	DotState getDotState(){ return mDotState; };
+
+	static void ToggleUsingAnimations(){ mUseAnimation = !mUseAnimation; };
+
 protected:
 	cinder::Vec2f mCenterPosition;
 	cinder::Anim<cinder::Vec3f> mRotation;
@@ -39,6 +42,6 @@ protected:
 	cinder::ColorA mOnColor, mOffColor;
 	cinder::TriMesh mesh;
 
-	
+	static bool mUseAnimation;
 
 };

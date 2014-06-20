@@ -12,6 +12,9 @@ using namespace std;
 using namespace ci;
 using namespace ci::app;
 
+
+bool DotController::mGravity = false;
+
 DotController::DotController() :
 mPosition(Vec2f(0.0f,0.0f)),
 mSize(Vec2f(0.0f, 0.0f)),
@@ -22,8 +25,8 @@ mChannelSound(0),
 mChannelSynth(0),
 mSound(0),
 mSystem(0),
-mSoundLevel(1),
-mGravity(true)
+mSoundLevel(1)
+
 {
 
 }
@@ -38,12 +41,12 @@ void DotController::setup(cinder::Vec2f &gridPosition, cinder::Vec2f &gridSize, 
 	float maxRows		= floor(gridSize.y / (dotRadius + dotSpacing));
 
 	Vec2f currentPos = mPosition+Vec2f(dotRadius, dotRadius);
-
-	for (int row = 0; row < maxRows; row++){
-		
+	for (int col = 0; col < maxColumns; col++){
 		vector<class Dot> dotRow;
-		for (int col = 0; col < maxColumns; col++){
-			Dot d = Dot();
+		for (int row = 0; row < maxRows; row++){
+		
+		
+				Dot d = Dot();
 			d.setup(currentPos, dotRadius);
 			dotRow.push_back(d);
 			currentPos.x += dotRadius * 2 + dotSpacing;
@@ -65,7 +68,7 @@ Vec2f DotController::getDotPosition(Vec2i index){
 		index.y < getNumRows()){
 
 
-		return mDotGrid.at(index.x).at(index.y).getDotPos();
+		return mDotGrid.at(index.y).at(index.x).getDotPos();
 	}
 	return Vec2f::zero();
 }
@@ -76,7 +79,7 @@ void DotController::setDotState(cinder::Vec2i index, Dot::DotState state){
 		index.y >= 0 &&
 		index.y < getNumRows()){
 
-		mDotGrid.at(index.x).at(index.y).setDotState(state);
+		mDotGrid.at(index.y).at(index.x).setDotState(state);
 
 	}
 }
@@ -88,7 +91,7 @@ void DotController::flipDot(cinder::Vec2i index){
 		index.y < getNumRows()){
 		//mSystem->playSound(FMOD_CHANNELINDEX::FMOD_CHANNEL_FREE, mSound, false, &mChannelSound);
 
-		mDotGrid.at(index.x).at(index.y).flipDot();
+		mDotGrid.at(index.y).at(index.x).flipDot();
 
 		
 	}
@@ -138,15 +141,16 @@ void DotController::update(){
 
 void DotController::stepGravity(){
 	console() << "DotWAll :: Step Gravity" << endl;
-	for (int col = getNumCols()-1; col >=0 ; col--){
-		for (int row = getNumRows()-1; row>=0; row--){
+	for (int x = getNumCols() - 1; x >= 0; x--){
+
+		for (int y = getNumRows() - 1; y >= 0; y--){
 		
 
 
-			if (mDotGrid.at(col).at(row).getDotState() == Dot::DotState::On){
-				setDotState(Vec2i(col, row ), Dot::DotState::Off);
+			if (mDotGrid.at(y).at(x).getDotState() == Dot::DotState::On){
+				setDotState(Vec2i(x, y ), Dot::DotState::Off);
 		
-				setDotState(Vec2i(col,row+3), Dot::DotState::On);
+				setDotState(Vec2i(x,y+3), Dot::DotState::On);
 			
 			}
 		}
@@ -158,7 +162,7 @@ void DotController::draw(){
 	
 	for (int row = 0; row < getNumRows(); row++){
 		for (int col = 0; col < getNumCols(); col++){
-			mDotGrid.at(row).at(col).draw();
+			mDotGrid.at(col).at(row).draw();
 		}
 	}
 
